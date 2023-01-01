@@ -127,3 +127,77 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         precision_at_k = 100 * np.mean(torch.Tensor(list(matching.values())).numpy())
         logger.info("%i source words - %s - Precision at k = %i: %f" %
                     (len(matching), method, k, precision_at_k))
+
+
+def get_word_translation(lang1, word2id1, emb1, lang2, id2word2, emb2, method, words, n):
+    """
+    Given source and target word embeddings, and a dictionary,
+    return the n-best-list of translations.
+    """
+    known_words = []
+    for word in words:
+        if word in word2id1:
+            known_words.append(word)
+    logger.info("When translating {} words, {} were not found in the embeddings dict.".format(len(words), len(words) - len(known_words)))
+
+    dico = torch.LongTensor(len(known_words))
+    for i, word in enumerate(known_words):
+        dico[i] = word2id1[word]
+
+    dico = dico.cuda() if emb1.is_cuda else dico
+
+    assert dico.max() < emb1.size(0)
+
+    # normalize word embeddings
+    emb1 = emb1 / emb1.norm(2, 1, keepdim=True).expand_as(emb1)
+    emb2 = emb2 / emb2.norm(2, 1, keepdim=True).expand_as(emb2)
+
+    # nearest neighbors
+    if method == 'nn':
+        query = emb1[dico]
+        scores = query.mm(emb2.transpose(0, 1))
+
+    # inverted softmax
+    elif method.startswith('invsm_beta_'):
+        beta = float(method[len('invsm_beta_'):])
+        bs = 128
+        word_scores = []
+        for i in range(0, emb2.size(0), bs):
+            scores = emb1.mm(emb2[i:i + bs].transpose(0, 1))
+            scores.mul_(beta).exp_()
+            scores.div_(scores.sum(0, keepdim=True).expand_as(scores))
+            word_scores.append(scores.index_select(0, dico))
+        scores = torch.cat(word_scores, 1)
+
+    # contextual dissimilarity measure
+    elif method.startswith('csls_knn_'):
+        # average distances to k nearest neighbors
+        knn = method[len('csls_knn_'):]
+        assert knn.isdigit()
+        knn = int(knn)
+        average_dist1 = get_nn_avg_dist(emb2, emb1, knn)
+        average_dist2 = get_nn_avg_dist(emb1, emb2, knn)
+        average_dist1 = torch.from_numpy(average_dist1).type_as(emb1)
+        average_dist2 = torch.from_numpy(average_dist2).type_as(emb2)
+        # queries / scores
+        query = emb1[dico]
+        cpu = torch.device("cpu")
+        scores = query.to(cpu).mm(emb2.to(cpu).transpose(0, 1))
+        scores.mul_(2)
+        scores.sub_(average_dist1[dico].to(cpu)[:, None])
+        scores.sub_(average_dist2.to(cpu)[None, :])
+
+    else:
+        raise Exception('Unknown method: "%s"' % method)
+
+    # TODO Print also the scores.
+    translations = []
+    top_matches = scores.topk(n, 1, True)[1]
+
+    assert top_matches.size(dim=0) == len(known_words)
+    assert top_matches.size(dim=1) == n
+
+    for i, word in enumerate(known_words):
+        for j in range(n):
+            translations.append((word, id2word2[top_matches[i, j].item()]))
+    return translations
