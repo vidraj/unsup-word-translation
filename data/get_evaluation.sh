@@ -6,7 +6,8 @@
 #
 
 en_analogy='https://storage.googleapis.com/google-code-archive-source/v2/code.google.com/word2vec/source-archive.zip'
-aws_path='https://s3.amazonaws.com/arrival'
+#aws_path='https://s3.amazonaws.com/arrival'
+aws_path='https://arrival.s3.amazonaws.com/arrival'
 semeval_2017='http://alt.qcri.org/semeval2017/task2/data/uploads'
 europarl='http://www.statmt.org/europarl/v7'
 
