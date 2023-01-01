@@ -154,8 +154,8 @@ class Trainer(object):
 
         # check NaN
         if (loss != loss).data.any():
-            logger.error("NaN detected (discriminator)")
-            exit()
+            logger.error("NaN detected (discriminator step B)")
+            exit(1)
 
         # optim
         self.dis_optimizer_B.zero_grad()
@@ -178,8 +178,8 @@ class Trainer(object):
 
         # check NaN
         if (loss != loss).data.any():
-            logger.error("NaN detected (discriminator)")
-            exit()
+            logger.error("NaN detected (discriminator step A)")
+            exit(1)
 
         # optim
         self.dis_optimizer_A.zero_grad()
@@ -205,8 +205,8 @@ class Trainer(object):
 
         # check NaN
         if (loss != loss).data.any():
-            logger.error("NaN detected (fool discriminator)")
-            exit()
+            logger.error("NaN detected (fool discriminator step G)")
+            exit(1)
 
         # Cycle/Back_translation loss
         bs = self.params.batch_size
@@ -263,8 +263,8 @@ class Trainer(object):
 
         # check NaN
         if (loss != loss).data.any():
-            logger.error("NaN detected (fool discriminator)")
-            exit()
+            logger.error("NaN detected (fool discriminator step F)")
+            exit(1)
         
         # Cycle/Back_translation loss
         bs = self.params.batch_size
