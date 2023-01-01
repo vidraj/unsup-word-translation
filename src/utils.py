@@ -327,10 +327,12 @@ def load_embeddings(params, source, full_vocab=False):
     emb_path = params.src_emb if source else params.tgt_emb
     if emb_path.endswith('.pth'):
         return load_pth_embeddings(params, source, full_vocab)
-    if emb_path.endswith('.bin'):
+    elif emb_path.endswith('.vec'):
+        return read_txt_embeddings(params, source, full_vocab)
+    elif emb_path.endswith('.bin'):
         return load_bin_embeddings(params, source, full_vocab)
     else:
-        return read_txt_embeddings(params, source, full_vocab)
+        return load_bin_embeddings(params, source, full_vocab)
 
 
 def normalize_embeddings(emb, types, mean=None):
