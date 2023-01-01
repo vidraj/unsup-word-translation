@@ -22,7 +22,7 @@ def load_dictionary(path, word2id1, word2id2):
     Return a torch tensor of size (n, 2) where n is the size of the
     loader dictionary, and sort it by source word frequency.
     """
-    assert os.path.isfile(path)
+    assert os.path.isfile(path), "File '{}' not found".format(path)
 
     pairs = []
     not_found = 0
@@ -31,7 +31,7 @@ def load_dictionary(path, word2id1, word2id2):
 
     with io.open(path, 'r', encoding='utf-8') as f:
         for _, line in enumerate(f):
-            assert line == line.lower()
+            assert line == line.lower(), "Line '{}' from file '{}' is not in lowercase".format(line, path)
             word1, word2 = line.rstrip().split()
             if word1 in word2id1 and word2 in word2id2:
                 pairs.append((word1, word2))
