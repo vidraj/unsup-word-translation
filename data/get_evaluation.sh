@@ -16,7 +16,7 @@ wordsim_lg=(["en"]="EN_MC-30.txt EN_MTurk-287.txt EN_RG-65.txt EN_VERB-143.txt E
 mkdir monolingual crosslingual
 
 ## English word analogy task
-curl -Lo source-archive.zip $en_analogy
+curl --fail --fail-early -Lo source-archive.zip $en_analogy
 mkdir -p monolingual/en/
 unzip -p source-archive.zip word2vec/trunk/questions-words.txt > monolingual/en/questions-words.txt
 rm source-archive.zip
@@ -30,9 +30,9 @@ do
   for suffix in .txt .0-5000.txt .5000-6500.txt
   do
     fname=en-$lg$suffix
-    curl -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/$fname
+    curl --fail --fail-early -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/$fname
     fname=$lg-en$suffix
-    curl -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/$fname
+    curl --fail --fail-early -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/$fname
   done
 done
 
@@ -46,7 +46,7 @@ do
       for suffix in .txt .0-5000.txt .5000-6500.txt
       do
         fname=$src_lg-$tgt_lg$suffix
-        curl -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/european/$fname
+        curl --fail --fail-early -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/european/$fname
       done
     fi
   done
@@ -56,7 +56,7 @@ done
 for fname in OPUS_en_it_europarl_train_5K.txt OPUS_en_it_europarl_test.txt
 do
     echo $fname
-    curl -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/$fname
+    curl --fail --fail-early -Lo crosslingual/dictionaries/$fname $aws_path/dictionaries/$fname
 done
 
 ## Monolingual wordsim tasks
@@ -67,13 +67,13 @@ do
   for wsim in ${wordsim_lg[$lang]}
   do
     echo $wsim
-    curl -Lo monolingual/$lang/$wsim $aws_path/$lang/$wsim
+    curl --fail --fail-early -Lo monolingual/$lang/$wsim $aws_path/$lang/$wsim
   done
 done
 
 ## SemEval 2017 monolingual and cross-lingual wordsim tasks
 # 1) Task1: monolingual
-curl -Lo semeval2017-task2.zip $semeval_2017/semeval2017-task2.zip
+curl --fail --fail-early -Lo semeval2017-task2.zip $semeval_2017/semeval2017-task2.zip
 unzip semeval2017-task2.zip
 
 fdir='SemEval17-Task2/test/subtask1-monolingual'
@@ -107,7 +107,7 @@ if false; then
 
   for lg_pair in it-en  # es-en etc
   do
-    curl -Lo $lg_pair.tgz $europarl/$lg_pair.tgz
+    curl --fail --fail-early -Lo $lg_pair.tgz $europarl/$lg_pair.tgz
     tar -xvf it-en.tgz
     rm it-en.tgz
     lgs=(${lg_pair//-/ })
