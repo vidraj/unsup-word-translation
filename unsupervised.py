@@ -92,8 +92,8 @@ assert 0 <= params.dis_input_dropout < 1
 assert 0 <= params.dis_smooth < 0.5
 assert params.dis_lambda > 0 and params.dis_steps > 0
 assert 0 < params.lr_shrink <= 1
-assert os.path.isfile(params.src_emb)
-assert os.path.isfile(params.tgt_emb)
+assert os.path.exists(params.src_emb)
+assert os.path.exists(params.tgt_emb)
 assert params.dico_eval == 'default' or params.dico_eval == 'vecmap' or os.path.isfile(params.dico_eval)
 assert params.export in ["", "txt", "pth"]
 
