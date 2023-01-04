@@ -302,7 +302,7 @@ class Trainer(object):
 
 
     def train_autoencoder_A(self):
-        print("Training source in autoencoder.")
+        logger.info("Training source in autoencoder.")
         bs = 128
         for epoch in tqdm(range( self.params.autoenc_epochs)):
             total_loss=0
@@ -329,7 +329,7 @@ class Trainer(object):
                 
     
     def train_autoencoder_B(self):
-        print("Training target in autoencoder.")
+        logger.info("Training target in autoencoder.")
         bs = 128
         for epoch in tqdm(range( self.params.autoenc_epochs)):
             total_loss=0

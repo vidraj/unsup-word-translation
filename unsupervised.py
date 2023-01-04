@@ -125,7 +125,7 @@ if params.adversarial:
     trainer.train_autoencoder_A()
     trainer.train_autoencoder_B()
 
-    logger.info('----> ADVERSARIAL TRAINING <----\n\n')
+    logger.info('----> ADVERSARIAL TRAINING <----')
 
     # adversarial training loop
     for n_epoch in range(params.n_epochs):
@@ -190,7 +190,7 @@ Learning loop for Refinement Procedure
 
         
 # Refinement for language A->B
-print("\n \n Refinement iteration for ", params.src_lang, "to ", params.tgt_lang,  "\n")
+logger.info("Refinement iteration for %s to %s", params.src_lang, params.tgt_lang)
 
 # Reload best model from adversarial training
 trainer.reload_best_AB()
@@ -199,7 +199,7 @@ trainer.build_dictionary_AB()
 prev_score_mean = 0
 
 # apply the Procrustes solution for language A->B
-print('**Procrustes solution iteration for  ', params.src_lang, "to ", params.tgt_lang,  ' **')
+logger.info('**Procrustes solution iteration for %s to %s ** ', params.src_lang, params.tgt_lang)
 for n_iter in range(params.n_procrustes):
     trainer.procrustes_AB()
 
@@ -225,7 +225,7 @@ to_log = OrderedDict({'n_iter': n_iter})
 
 
 # Symmetric Reweighting for language A->B
-print("** Symmetric Reweighting for ", params.src_lang, "to ", params.tgt_lang,  " **")
+logger.info("** Symmetric Reweighting for %s to %s **", params.src_lang, params.tgt_lang)
 for i in range(params.n_symmetric_reweighting):
     # seed dictionary from previous step
     src_indices = trainer.dico_AB.cpu().numpy()[:,0]
@@ -261,7 +261,7 @@ print("\n\n\n", flush=True)
 
 
 # Refinement for language B->A 
-print("\n \n Refinement iteration for ", params.tgt_lang, "to ", params.src_lang,  "\n")
+logger.info("Refinement iteration for %s to %s", params.tgt_lang, params.src_lang)
 
 # Reload best model from adversarial training
 trainer.reload_best_BA()
@@ -269,7 +269,7 @@ trainer.build_dictionary_BA()
 
 prev_score_mean = 0
 # apply the Procrustes solution for language B->A
-print('** Procrustes solution iteration for  ', params.tgt_lang, "to ", params.src_lang,  ' **')
+logger.info('** Procrustes solution iteration for %s to %s **', params.tgt_lang, params.src_lang)
 for n_iter in range(params.n_procrustes):
     trainer.procrustes_BA()
 
@@ -293,7 +293,7 @@ logger.info('Finished %i procrustes iteration ... for B to A' % n_iter)
 to_log = OrderedDict({'n_iter': n_iter})
 
 # Symmetric Reweighting for language B->A
-print("** Symmetric Reweighting for ", params.tgt_lang, "to ", params.src_lang,  " **")
+logger.info("** Symmetric Reweighting for %s to %s **", params.tgt_lang, params.src_lang)
 for i in range(params.n_symmetric_reweighting):
     # seed dictionary from previous step
     src_indices = trainer.dico_BA.cpu().numpy()[:,0]
