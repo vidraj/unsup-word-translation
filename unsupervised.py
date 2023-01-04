@@ -1,5 +1,6 @@
 # This project uses the structure of MUSE (https://github.com/facebookresearch/MUSE)
 
+import sys
 import os
 import time
 import json
@@ -14,8 +15,7 @@ from src.models import build_model
 from src.trainer import Trainer
 from src.evaluation import Evaluator
 from src.refinement import generate_new_dictionary, symmetric_reweighting
-from src.evaluation.word_translation import get_word_translation_accuracy
-
+from src.evaluation.word_translation import get_word_translation_accuracy, get_word_translation
 
 VALIDATION_METRIC_AB = 'mean_cosine-csls_knn_10-S2T-10000'
 VALIDATION_METRIC_BA = 'mean_cosine-csls_knn_10-T2S-10000'
@@ -104,6 +104,17 @@ src_emb, tgt_emb, mapping_G, mapping_F, discriminator_A, discriminator_B, encode
 trainer = Trainer(src_emb, tgt_emb, mapping_G, mapping_F, discriminator_A, discriminator_B, encoder_A, decoder_A, encoder_B, decoder_B, params)
 evaluator = Evaluator(trainer)
 
+predict_words = []
+missing = 0
+for word in sys.stdin:
+    word = word.rstrip()
+    predict_words.append(word)
+    if word not in params.src_dico.word2id:
+        missing += 1
+if missing == 0:
+    logger.info("Read {} words for prediction".format(len(predict_words)))
+else:
+    logger.warning("Missing {} out of {} words in the embeddings dictionary".format(missing, len(predict_words)))
 
 """
 Learning loop for Adversarial Training
@@ -235,13 +246,17 @@ for i in range(params.n_symmetric_reweighting):
         break 
 
 logger.info('Finished %i Symmetric Re-weighting iteration ... for A to B' % i)
-get_word_translation_accuracy(
+translations = get_word_translation(
         params.src_dico.lang, params.src_dico.word2id, xw,
-        params.tgt_dico.lang, params.tgt_dico.word2id, zw,
+        params.tgt_dico.lang, params.tgt_dico.id2word, zw,
         method='csls_knn_10',
-        dico_eval=params.dico_eval
+        words=predict_words,
+        n=10
     )
+for src, tgt in translations:
+	print(src, tgt, sep="\t")
 
+print("\n\n\n", flush=True)
 
 
 
@@ -299,18 +314,12 @@ for i in range(params.n_symmetric_reweighting):
         break
 
 logger.info('Finished %i Symmetric Re-weighting iteration ... for B to A' % i)
-get_word_translation_accuracy(
-        params.tgt_dico.lang, params.tgt_dico.word2id, zw,
+translations = get_word_translation(
         params.src_dico.lang, params.src_dico.word2id, xw,
+        params.tgt_dico.lang, params.tgt_dico.id2word, zw,
         method='csls_knn_10',
-        dico_eval=params.dico_eval
+        words=predict_words,
+        n=10
     )
-
-
-
-
-
-
-
-
-
+for src, tgt in translations:
+	print(src, tgt, sep="\t")
