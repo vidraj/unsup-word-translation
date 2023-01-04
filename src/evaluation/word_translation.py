@@ -192,12 +192,12 @@ def get_word_translation(lang1, word2id1, emb1, lang2, id2word2, emb2, method, w
 
     # TODO Print also the scores.
     translations = []
-    top_matches = scores.topk(n, 1, True)[1]
+    top_scores, top_matches = scores.topk(n, 1, True)
 
     assert top_matches.size(dim=0) == len(known_words)
     assert top_matches.size(dim=1) == n
 
     for i, word in enumerate(known_words):
         for j in range(n):
-            translations.append((word, id2word2[top_matches[i, j].item()]))
+            translations.append((word, id2word2[top_matches[i, j].item()], top_scores[i, j].item()))
     return translations

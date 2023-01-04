@@ -253,8 +253,8 @@ translations = get_word_translation(
         words=predict_words,
         n=10
     )
-for src, tgt in translations:
-	print(src, tgt, sep="\t")
+for src, tgt, score in translations:
+	print(src, tgt, score, sep="\t")
 
 print("\n\n\n", flush=True)
 
@@ -321,5 +321,5 @@ translations = get_word_translation(
         words=predict_words,
         n=10
     )
-for src, tgt in translations:
-	print(src, tgt, sep="\t")
+for src, tgt, score in translations:
+	print(src, tgt, score, sep="\t")
