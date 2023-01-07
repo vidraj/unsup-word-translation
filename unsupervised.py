@@ -246,17 +246,6 @@ for i in range(params.n_symmetric_reweighting):
         break 
 
 logger.info('Finished %i Symmetric Re-weighting iteration ... for A to B' % i)
-translations = get_word_translation(
-        params.src_dico.lang, params.src_dico.word2id, xw,
-        params.tgt_dico.lang, params.tgt_dico.id2word, zw,
-        method='csls_knn_10',
-        words=predict_words,
-        n=10
-    )
-for src, tgt, score in translations:
-	print(src, tgt, score, sep="\t")
-
-print("\n\n\n", flush=True)
 
 
 
