@@ -129,16 +129,35 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                     (len(matching), method, k, precision_at_k))
 
 
+def get_batches(l, n):
+    """
+    Iterate over batches of up to `n` items from iterable `l`.
+    """
+    while l:
+        yield l[:n]
+        l = l[n:]
+
 def get_word_translation(lang1, word2id1, emb1, lang2, id2word2, emb2, method, words, n):
+    """
+    Perform batching to a batch size of 1000 to decrease RAM requirements.
+    """
+    batch_size = 1000
+    known_words = [word for word in words if word in word2id1]
+    logger.info("When translating {} words, {} were not found in the embeddings dict.".format(len(words), len(words) - len(known_words)))
+
+    all_trans = []
+
+    for batch in get_batches(known_words, batch_size):
+        all_trans += get_word_translation_batch(lang1, word2id1, emb1, lang2, id2word2, emb2, method, batch, n)
+
+    return all_trans
+
+def get_word_translation_batch(lang1, word2id1, emb1, lang2, id2word2, emb2, method, words, n):
     """
     Given source and target word embeddings, and a dictionary,
     return the n-best-list of translations.
     """
-    known_words = []
-    for word in words:
-        if word in word2id1:
-            known_words.append(word)
-    logger.info("When translating {} words, {} were not found in the embeddings dict.".format(len(words), len(words) - len(known_words)))
+    known_words = words
 
     dico = torch.LongTensor(len(known_words))
     for i, word in enumerate(known_words):
