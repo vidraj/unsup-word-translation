@@ -310,5 +310,20 @@ translations = get_word_translation(
         words=predict_words,
         n=10
     )
+
+needs_rev_translation = set()
 for src, tgt, score in translations:
-	print(src, tgt, score, sep="\t")
+    needs_rev_translation.add(tgt)
+    print(params.src_dico.lang, src, params.tgt_dico.lang, tgt, score, sep="\t")
+
+# Produce backward translations from tgt to src.
+rev_translations = get_word_translation(
+        params.tgt_dico.lang, params.tgt_dico.word2id, zw,
+        params.src_dico.lang, params.src_dico.id2word, xw,
+        method='csls_knn_10',
+        words=sorted(needs_rev_translation),
+        n=10
+    )
+
+for tgt, src, score in rev_translations:
+    print(params.tgt_dico.lang, tgt, params.src_dico.lang, src, score, sep="\t")
